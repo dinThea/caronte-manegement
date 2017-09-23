@@ -1,0 +1,2 @@
+int cadastrarCliente();
+int excluirCliente();

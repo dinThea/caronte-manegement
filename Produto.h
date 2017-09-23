@@ -1,0 +1,2 @@
+int cadastrarProduto();
+int excluirProduto();

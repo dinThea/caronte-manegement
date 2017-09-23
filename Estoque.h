@@ -1,0 +1,2 @@
+int aumentarEstoque();
+int diminuirEstoque();
