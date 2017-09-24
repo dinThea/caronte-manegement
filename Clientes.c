@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <String.h> 
+#include <string.h> 
 
 int cadastrarCliente(char name[], char* lastId[], char* actualId[]){
     
@@ -33,8 +33,10 @@ int excluirCliente(char type, char id[], char name[]){
     char nameCmp[strlen(name)];
     char idCmp[strlen(id)];
     FILE *fp;
+    FILE *fp2;
 
     fp = fopen ("Clientes.txt", "r+");
+    fp2 = fopen ("ClientesExcluidos.txt", "r+");
     switch(type){
         case 'i':
             for(i = 0; i < strlen(id); i++){
@@ -52,6 +54,8 @@ int excluirCliente(char type, char id[], char name[]){
             }
             if(!feof(fp)){
                 return 1;
+            }else{
+                fprintf(fp, "%s %s\n", id, name);
             }
         break;
         case 'n':
@@ -70,6 +74,9 @@ int excluirCliente(char type, char id[], char name[]){
             }
             if(!feof(fp)){
                 return 1;
+            }
+            else{
+                fprintf(fp, "%s %s\n", id, name);
             }
         break;
     }
