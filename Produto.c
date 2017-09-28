@@ -1,93 +1,118 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 
-int cadastrarProduto(char preco[], char name[], char* lastId[], char* actualId[]){
-    
+int cadastrarProduto(char preco[], char name[], char* lastId[], char* actualId[], char estoque[]){
+
     int i, j, num;
-    FILE *fp;
+    char produtoNormalized[41];
+    char precoNormalized[9];
+    char estoqueNormalized[13];
+    FILE *produto, *idProduto, *estoqueProduto, *precoProduto;
 
-    fp = fopen ("Produto.txt", "r+");
+    produto = fopen ("Produto.txt", "r+");
+    idProduto = fopen ("idProduto.txt", "r+");
+    precoProduto = fopen ("precoProduto.txt", "r+");
+    estoqueProduto = fopen ("estoqueProduto.txt", "r+");
 
     for(i = 0; i < 9; i++){
         num += *actualId[i] - '0';
     }
 
+    for(i = 0; i < sizeof(precoNormalized) - 1; i++){
+        precoNormalized[i] = '';
+    }
+
+    for(i = 0; i < sizeof(estoqueNormalized) - 1; i++){
+        estoqueNormalized[i] = '';
+    }
+
+    for(i = 0; i < sizeof(produtoNormalized) - 1; i++){
+        produtoNormalized[i] = '';
+    }
+
+    if(sizeof(name) > 41){
+        return 1;
+    }else if(sizeof(preco) > sizeof(precoNormalized){
+        return 1;
+    }else if(sizeof(estoque) > sizeof(estoqueNormalized)){
+        return 1;
+    }else{
+        for(i = 0; i < (sizeof(produtoNormalized) - sizeof(name)), i++){
+            produtoNormalized[sizeof(produtoNormalized) - i] = name[sizeof(name) - i]; 
+        }
+        for(i = 0; i < (sizeof(estoqueNormalized) - sizeof(estoque)), i++){
+            produtoNormalized[sizeof(estoqueNormalized) - i] = estoque[sizeof(estoque) - i]; 
+        }
+        for(i = 0; i < (sizeof(precoNormalized) - sizeof(preco)), i++){
+            precoNormalized[sizeof(precoNormalized) - i] = preco[sizeof(name) - i]; 
+        }
+    }
+
     if(num == 0){
-        fprintf(fp, "%s %s %s\n", *actualId, preco, name);
+        fputs(precoNormalized, precoProduto);
+        fputs(estoqueNormalized, estoqueProduto);
+        fputs(produtoNormalized, produto);
+        fputs(actualId, idProduto);
         *actualId = "00000001";
     }else{
-        fprintf(fp, "%s %s %s\n", *actualId, preco, name);
+        fputs(precoNormalized, precoProduto);
+        fputs(estoqueNormalized, estoqueProduto);
+        fputs(produtoNormalized, produto);
+        fputs(actualId, idProduto);
         strcpy(*lastId, *actualId);
-        incrementStr(&actualId, 0); 
+        incrementStrProduto(&actualId, 0); 
     }
 
-    fclose(fp);
+    fclose(produto);
+    fclose(precoProduto);
+    fclose(estoqueProduto);
+    fclose(idProduto);
 
     return 0;
 }
 
-int excluirProduto(char type, char id[], char name[], char preco[]){
+int excluirProduto(char name[]){
 
     int i, j, booleno = 1;
-    char nameCmp[strlen(name)];
-    char idCmp[strlen(id)];
-    FILE *fp;
-    FILE *fp2;
+    char nameCmp[41];
+    char nameRsch[41];
+    FILE *produto;
+    FILE *preduto2;
 
-    fp = fopen ("Produto.txt", "r+");
-    fp2 = fopen ("ProdutosExcluidos.txt", "r+");
-    switch(type){
-        case 'i':
-            for(i = 0; i < strlen(id); i++){
-                idCmp[i] = fgetc(fp);
-            }
-            while(feof(fp) || booleno){
-                if(strcmp(idCmp, id)){
-                    booleno = 0;
-                }else{
-                    for(i = 1; i < strlen(id); i++){
-                        idCmp[i-1] = idCmp[i];
-                    }
-                    idCmp[strlen - 1] = fgetc(fp);
-                }
-            }
-            if(!feof(fp)){
-                return 1;
-            }else{
-                fprintf(fp, "%s %s %s\n", id, preco, name);
-            }
-        break;
-        case 'n':
-            for(i = 0; i < strlen(name); i++){
-                nameCmp[i] = fgetc(fp);
-            }
-            while(feof(fp) || booleno){
-                if(strcmp(nameCmp, name)){
-                    booleno = 0;
-                }else{
-                    for(i = 1; i < strlen(name); i++){
-                        nameCmp[i-1] = nameCmp[i];
-                    }
-                    nameCmp[strlen - 1] = fgetc(fp);
-                }
-            }
-            if(!feof(fp)){
-                return 1;
-            }
-            else{
-                fprintf(fp, "%s %s %s\n", id, preco, name);
-            }
-        break;
+    produto = fopen ("Produto.txt", "r+");
+    produto2 = fopen ("ProdutosExcluidos.txt", "r+");
+    
+    for(i = 0; i < sizeof(nameCmp) - 1; i++){
+        nameCmp[i] = '';
     }
 
-    fclose(fp);
-    fclose(fp2);
+    if(sizeof(nameCmp) > 41){
+        return 1;
+    }else{
+        for(i = 0; i < (sizeof(nameCmp) - sizeof(name)), i++){
+            nameCmp[sizeof(nameCmp) - i] = name[sizeof(name) - i]; 
+        }
+    }
+
+    while(fgets(nameRsch, 41, produto) != NULL){
+        if(strcmp(nameRsch, nameCmp)){
+            booleno = 0;
+        }
+    }
+    if(!feof(produto)){
+        return 1;
+    }else{
+        fputs(produto2, nameCmp);
+    }
+    
+    fclose(produto);
+    fclose(produto2);
 
     return 0;
 }
 
-int incrementStr(char* actualId[], int num){
+int incrementStrProduto(char* actualId[], int num){
     int atual, i;
     if(num == strlen(*actualId)){
         if(*actualId[num] == '9'){

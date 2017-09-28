@@ -5,24 +5,41 @@
 int cadastrarCliente(char name[], char* lastId[], char* actualId[]){
     
     int i, j, num;
-    FILE *fp;
+    char nameNormalized[41];
+    FILE *clientes, *idClientes;
 
-    fp = fopen ("Clientes.txt", "r+");
+    clientes = fopen ("Clientes.txt", "r+");
+    idClientes = fopen ("IdClientes.txt", "r+");
+
+    for(i = 0; i < sizeof(nameNormalized) - 1; i++){
+        nameNormalized[i] = '';
+    }
+
+    if(sizeof(name) > 41){
+        return 1;
+    }else{
+        for(i = 0; i < (sizeof(nameNormalized) - sizeof(name)), i++){
+            nameNormalized[sizeof(nameNormalized) - i] = name[sizeof(name) - i]; 
+        }
+    }
 
     for(i = 0; i < 9; i++){
         num += *actualId[i] - '0';
     }
 
     if(num == 0){
-        fprintf(fp, "%s %s\n", *actualId, name);
+        fputs(nameNormalized, clientes);
+        fputs(actualId, idClientes);
         *actualId = "00000001";
     }else{
-        fprintf(fp, "%s %s\n", *actualId, name);
+        fputs(nameNormalized, clientes);
+        fputs(actualId, idClientes);
         strcpy(*lastId, *actualId);
         incrementStr(&actualId, 0); 
     }
 
-    fclose(fp);
+    fclose(clientes);
+    fclose(idClientes);
 
     return 0;
 }
@@ -30,56 +47,58 @@ int cadastrarCliente(char name[], char* lastId[], char* actualId[]){
 int excluirCliente(char type, char id[], char name[]){
 
     int i, j, booleno = 1;
-    char nameCmp[strlen(name)];
-    char idCmp[strlen(id)];
-    FILE *fp;
-    FILE *fp2;
+    char nameCmp[41];
+    char nameRsch[41];
+    char idCmp[9];
+    FILE *clientes, *clientes2, idClientes;
 
-    fp = fopen ("Clientes.txt", "r+");
-    fp2 = fopen ("ClientesExcluidos.txt", "r+");
+    clientes = fopen ("Clientes.txt", "r+");
+    clientes2 = fopen ("ClientesExcluidos.txt", "r+");
+    idClientes = fopen ("IdClientes.txt", "r+");
+
+    for(i = 0; i < sizeof(nameCmp) - 1; i++){
+        nameCmp[i] = '';
+    }
+
+    if(sizeof(nameCmp) > 41){
+        return 1;
+    }else{
+        for(i = 0; i < (sizeof(nameCmp) - sizeof(name)), i++){
+            nameCmp[sizeof(nameCmp) - i] = name[sizeof(name) - i]; 
+        }
+    }
+
     switch(type){
         case 'i':
-            for(i = 0; i < strlen(id); i++){
-                idCmp[i] = fgetc(fp);
-            }
-            while(feof(fp) || booleno){
+            while(fgets(idCmp, 9, idClientes) != NULL){
                 if(strcmp(idCmp, id)){
                     booleno = 0;
-                }else{
-                    for(i = 1; i < strlen(id); i++){
-                        idCmp[i-1] = idCmp[i];
-                    }
-                    idCmp[strlen - 1] = fgetc(fp);
                 }
             }
-            if(!feof(fp)){
+            if(!feof(idClientes)){
                 return 1;
             }else{
-                fprintf(fp, "%s %s\n", id, name);
+                fputs(clientes2, nameCmp);
             }
         break;
         case 'n':
-            for(i = 0; i < strlen(name); i++){
-                nameCmp[i] = fgetc(fp);
-            }
-            while(feof(fp) || booleno){
-                if(strcmp(nameCmp, name)){
+            while(fgets(nameRsch, 41, clientes) != NULL){
+                if(strcmp(nameRsch, nameCmp)){
                     booleno = 0;
-                }else{
-                    for(i = 1; i < strlen(name); i++){
-                        nameCmp[i-1] = nameCmp[i];
-                    }
-                    nameCmp[strlen - 1] = fgetc(fp);
                 }
             }
-            if(!feof(fp)){
+            if(!feof(clientes)){
                 return 1;
-            }
-            else{
-                fprintf(fp, "%s %s\n", id, name);
+            }else{
+                fputs(clientes2, nameCmp);
             }
         break;
     }
+    
+    fclose(clientes);
+    fclose(clientes2);
+    fclose(idClientes);
+
     return 0;
 }
 
