@@ -1,13 +1,7 @@
-int aumentarEstoque(char name[], char qntd){
-
-    FILE* FP;
-    
-    fp = fopen(".txt", "w+");
-
-
+int aumentarEstoque(){
     return 0;
 }
 
-int diminuirEstoque(char name[], char qntd[]){
+int diminuirEstoque(){
     return 0;
 }

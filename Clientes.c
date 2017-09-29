@@ -2,124 +2,107 @@
 #include <stdlib.h>
 #include <string.h> 
 
-int cadastrarCliente(char name[], char* lastId[], char* actualId[]){
-    
-    int i, j, num;
-    char nameNormalized[41];
-    FILE *clientes, *idClientes;
+int ler_cliente(){
 
-    clientes = fopen ("Clientes.txt", "r+");
-    idClientes = fopen ("IdClientes.txt", "r+");
+    int i, flag = 1;
+    char c;
+    do{
+        for(i = 0; i < ID_SIZE - 1; i++){
+            c = fgetc(clientes_file);
+            if(c == -1) flag = 0;
+            if(flag)
+                clientes[num_clientes].id[i] = c;
+        }
+        if(flag){
+            clientes[num_clientes].id[ID_SIZE] = '\0';
+            strcpy(actual_id, clientes[num_clientes].id);
 
-    for(i = 0; i < sizeof(nameNormalized) - 1; i++){
-        nameNormalized[i] = '';
-    }
+            fgetc(clientes_file);
+            for(i = 0; i < NAME_SIZE - 1; i++){
+                c = fgetc(clientes_file);
+                clientes[num_clientes].nome[i] = c;
+            }
+            clientes[num_clientes].nome[NAME_SIZE] = '\0';
 
-    if(sizeof(name) > 41){
-        return 1;
-    }else{
-        for(i = 0; i < (sizeof(nameNormalized) - sizeof(name)), i++){
-            nameNormalized[sizeof(nameNormalized) - i] = name[sizeof(name) - i]; 
+        
+            // Pula caracteres de quebra
+            fgetc(clientes_file);
+
+            // Pega o Status
+            c =  fgetc(clientes_file);
+            clientes[num_clientes].status = c - '0';
+            c =  fgetc(clientes_file);
+            
+            num_clientes++;
         }
     }
-
-    for(i = 0; i < 9; i++){
-        num += *actualId[i] - '0';
+    while(flag && !feof(clientes_file));
+    incrementStr(actual_id, 0);
+    for(i = 0; i < num_clientes; i++){
+        if(!clientes[i].status) num_clientes_del++;
     }
-
-    if(num == 0){
-        fputs(nameNormalized, clientes);
-        fputs(actualId, idClientes);
-        *actualId = "00000001";
-    }else{
-        fputs(nameNormalized, clientes);
-        fputs(actualId, idClientes);
-        strcpy(*lastId, *actualId);
-        incrementStr(&actualId, 0); 
-    }
-
-    fclose(clientes);
-    fclose(idClientes);
-
+    rewind(clientes_file);
     return 0;
 }
 
-int excluirCliente(char type, char id[], char name[]){
+int cadastrarCliente(char name[]){
+    char normalized_name[NAME_SIZE];
+    int i;
+    int name_len = strlen(name);
+
+    gotoend(clientes_file);
+
+    if(name_len > NAME_SIZE) return 1;
+    strcpy(normalized_name, name);
+    
+    for(i = name_len; i < NAME_SIZE; i++){
+        normalized_name[i] = ' ';
+    }
+    normalized_name[NAME_SIZE - 1] = '\0';
+
+    strcpy(clientes[num_clientes].nome, normalized_name); 
+    strcpy(clientes[num_clientes].id  , actual_id); 
+    clientes[num_clientes].status = 1;
+    
+    fprintf(clientes_file, "%s;%s;1\n", actual_id, normalized_name);
+    num_clientes++;
+
+    incrementStr(actual_id, 0);
+    return 0;
+}
+
+int excluirCliente(char id[]){
 
     int i, j, booleno = 1;
-    char nameCmp[41];
-    char nameRsch[41];
-    char idCmp[9];
-    FILE *clientes, *clientes2, idClientes;
-
-    clientes = fopen ("Clientes.txt", "r+");
-    clientes2 = fopen ("ClientesExcluidos.txt", "r+");
-    idClientes = fopen ("IdClientes.txt", "r+");
-
-    for(i = 0; i < sizeof(nameCmp) - 1; i++){
-        nameCmp[i] = '';
+    char idCmp[strlen(id)];
+    char c;
+    //voltar cursor para o início
+    rewind(clientes_file);
+    //le o primeiro id
+    for(i = 0; i < strlen(id); i++){
+        c = fgetc(clientes_file);
+        idCmp[i] = c;
     }
-
-    if(sizeof(nameCmp) > 41){
-        return 1;
-    }else{
-        for(i = 0; i < (sizeof(nameCmp) - sizeof(name)), i++){
-            nameCmp[sizeof(nameCmp) - i] = name[sizeof(name) - i]; 
-        }
-    }
-
-    switch(type){
-        case 'i':
-            while(fgets(idCmp, 9, idClientes) != NULL){
-                if(strcmp(idCmp, id)){
-                    booleno = 0;
-                }
-            }
-            if(!feof(idClientes)){
-                return 1;
-            }else{
-                fputs(clientes2, nameCmp);
-            }
-        break;
-        case 'n':
-            while(fgets(nameRsch, 41, clientes) != NULL){
-                if(strcmp(nameRsch, nameCmp)){
-                    booleno = 0;
-                }
-            }
-            if(!feof(clientes)){
-                return 1;
-            }else{
-                fputs(clientes2, nameCmp);
-            }
-        break;
-    }
+    idCmp[strlen(id)] = '\0';
     
-    fclose(clientes);
-    fclose(clientes2);
-    fclose(idClientes);
-
-    return 0;
-}
-
-int incrementStr(char* actualId[], int num){
-    int atual, i;
-    if(num == strlen(*actualId)){
-        if(*actualId[num] == '9'){
-            *actualId[num] = '0';
-            return 1;
+    while(!feof(clientes_file) && booleno){
+        //compara o valor lido com o parametro
+        if(!strcmp(idCmp, id)){
+            booleno = 0;
         }else{
-            *actualId[num] += 1;
-            return 0;
-        }     
-    } else if(incrementStr(char* actualId[], int num + 1)==1){
-        if((*actualId[num] == '9'){}
-            *actualId[num] = '0';
-            return 1;
-        }else if{
-            *actualId[num] += 1;
-            return 0;
+            for(i = 0; i < 13; i++) fgetc(clientes_file);
+            fgets(idCmp, 8, clientes_file);
         }
-    }    
+    }
+    if(feof(clientes_file)){
+        return 1;
+    } else {
+        for(i = 0; i < NAME_SIZE + 1; i++)
+            fgetc(clientes_file);
+        fprintf(clientes_file, "0");
+        num_clientes_del++;
+    }
+
+
     return 0;
 }

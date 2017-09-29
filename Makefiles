@@ -1,0 +1,28 @@
+#Para escrever comentários ##
+############################# Makefile ##########################
+all: Main
+
+Main: build/Clientes.o build/CompraseVendas.o  build/Estoque.o build/Produto.o build/Relatorios.o build/Main.o build/Utils.o
+			gcc -o Main build/Clientes.o  build/CompraseVendas.o build/Estoque.o build/Produto.o build/Relatorios.o build/Main.o build/Utils.o -lpdcurses
+
+#-----> Distancia com o botão TAB ### e não com espaços
+build/Utils.o: lib/Utils.c
+			gcc -o build/Utils.o -c lib/Utils.c
+build/Clientes.o: lib/Clientes.c
+			gcc -o build/Clientes.o -c lib/Clientes.c
+build/CompraseVendas.o: lib/CompraseVendas.c
+			gcc -o build/CompraseVendas.o -c lib/CompraseVendas.c
+build/Estoque.o: lib/Estoque.c
+			gcc -o build/Estoque.o -c lib/Estoque.c
+build/Produto.o: lib/Produto.c
+			gcc -o build/Produto.o -c lib/Produto.c
+build/Relatorios.o: lib/Relatorios.c
+			gcc -o build/Relatorios.o -c lib/Relatorios.c
+build/Main.o: Main.c
+			gcc -o build/Main.o -c Main.c
+
+clean:
+			rm -rf *.o
+
+mrproper: clean
+			rm -rf Main
